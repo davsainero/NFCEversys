@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eversys — Portal de Servicio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050505;--bg2:#0a0f0a;--card-bg:#070d07;
+  --border:#1a2e1a;--border2:#244024;
+  --green:#00ff88;--green2:#00cc6a;
+  --white:#f0fff4;--text:#b8e8c8;--muted:#4a7a5a;--muted2:#3a5a45;
+  --danger:#ff4466;--warn:#ffaa00;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,.012) 2px,rgba(0,255,136,.012) 4px);pointer-events:none;z-index:9999;}
+body::after{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(0,255,136,.04) 0%,transparent 65%);pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{position:relative;z-index:10;border-bottom:1px solid var(--border2);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:66px;background:rgba(5,5,5,.97);backdrop-filter:blur(12px);}
+.logo img{height:36px;filter:invert(1);display:block;}
+.header-right{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;border:1px solid var(--border2);padding:5px 12px;border-radius:4px;}
+
+/* TABS */
+.tab-nav{position:relative;z-index:5;display:flex;border-bottom:1px solid var(--border2);background:rgba(5,5,5,.95);padding:0 36px;}
+.tab-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;padding:14px 24px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green);text-shadow:0 0 12px rgba(0,255,136,.4);}
+
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:28px 20px 24px;}
+.hero-sub{font-size:14px;color:var(--muted);letter-spacing:.04em;}
+
+/* SHELL */
+.search-shell,.companies-shell{position:relative;z-index:1;max-width:800px;margin:0 auto 60px;padding:0 20px;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;}
+.step{border:1px solid var(--border);border-bottom:none;background:var(--card-bg);overflow:hidden;transition:border-color .25s,box-shadow .25s;}
+.step:first-child{border-radius:12px 12px 0 0;}
+.step:last-child{border-bottom:1px solid var(--border);border-radius:0 0 12px 12px;}
+.step.active{border-color:var(--green2);box-shadow:0 0 0 1px rgba(0,255,136,.08),inset 0 0 40px rgba(0,255,136,.03);}
+.step.done{border-color:var(--border2);}
+.step-header{display:flex;align-items:center;gap:16px;padding:20px 28px;cursor:pointer;user-select:none;}
+.step-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--muted2);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--muted);flex-shrink:0;transition:all .2s;}
+.step.active .step-num{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.06);box-shadow:0 0 12px rgba(0,255,136,.2);}
+.step.done .step-num{border-color:var(--green2);background:rgba(0,255,136,.08);color:var(--green);}
+.step-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--muted);flex:1;font-family:'IBM Plex Mono',monospace;}
+.step.active .step-label{color:var(--white);}
+.step.done .step-label{color:var(--text);}
+.step-value{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green);padding:4px 12px;background:rgba(0,255,136,.06);border-radius:4px;border:1px solid rgba(0,255,136,.2);letter-spacing:.05em;}
+.step-body{display:none;padding:0 28px 28px;}
+.step.active .step-body{display:block;}
+
+/* MACHINE */
+.machine-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.machine-card{border:1px solid var(--border2);border-radius:10px;padding:24px 16px 20px;cursor:pointer;text-align:center;transition:all .2s;background:var(--bg2);position:relative;overflow:hidden;}
+.machine-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -20%,rgba(0,255,136,.1) 0%,transparent 60%);opacity:0;transition:opacity .25s;}
+.machine-card:hover::after,.machine-card.selected::after{opacity:1;}
+.machine-card:hover{border-color:var(--green2);transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,255,136,.1);}
+.machine-card.selected{border-color:var(--green);background:rgba(0,255,136,.04);}
+.machine-icon{font-size:34px;margin-bottom:12px;display:block;position:relative;z-index:1;}
+.machine-name{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--white);margin-bottom:4px;letter-spacing:.06em;position:relative;z-index:1;}
+.machine-card.selected .machine-name{color:var(--green);}
+.machine-desc{font-size:10px;color:var(--muted);letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;position:relative;z-index:1;}
+
+/* MODULE */
+.module-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.module-btn{border:1px solid var(--border2);border-radius:8px;padding:16px 8px 12px;cursor:pointer;text-align:center;transition:all .18s;background:var(--bg2);}
+.module-btn:hover{border-color:var(--green2);background:rgba(0,255,136,.04);transform:translateY(-2px);}
+.module-btn.selected{border-color:var(--green);background:rgba(0,255,136,.07);}
+.module-icon{font-size:24px;margin-bottom:8px;display:block;}
+.module-name{font-size:10px;color:var(--text);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;}
+.module-btn.selected .module-name{color:var(--green);}
+
+/* ID */
+.id-input-row{display:flex;gap:12px;margin-bottom:18px;align-items:flex-end;}
+.id-field{flex:1;}
+.id-field label{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.id-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:var(--white);letter-spacing:.1em;outline:none;transition:border-color .2s,box-shadow .2s;-moz-appearance:textfield;}
+.id-input::-webkit-inner-spin-button,.id-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.id-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,136,.08);}
+.id-input::placeholder{color:var(--muted2);}
+.id-search-btn{padding:12px 28px;background:var(--green);border:none;border-radius:8px;color:#050505;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.1em;transition:all .18s;white-space:nowrap;text-transform:uppercase;box-shadow:0 4px 18px rgba(0,255,136,.3);}
+.id-search-btn:hover{background:#00ffaa;transform:translateY(-1px);}
+.id-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;max-height:260px;overflow-y:auto;padding-right:4px;}
+.id-grid::-webkit-scrollbar{width:4px;}
+.id-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.id-chip{padding:8px 4px;border:1px solid var(--border);border-radius:6px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s;background:var(--bg2);}
+.id-chip:hover{border-color:var(--green2);color:var(--green);background:rgba(0,255,136,.05);}
+.id-chip.selected{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.08);}
+.id-chip.no-url{opacity:.25;cursor:not-allowed;color:var(--muted2);}
+.id-chip.no-url:hover{border-color:var(--border);color:var(--muted2);background:var(--bg2);}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.search-hint{font-size:11px;color:var(--muted);margin-bottom:12px;font-family:'IBM Plex Mono',monospace;}
+.search-hint span{color:var(--green);font-weight:600;}
+
+/* RESULT */
+.result-panel{position:relative;z-index:1;max-width:800px;margin:0 auto 60px;padding:0 20px;animation:slideUp .3s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.result-card{border:1px solid var(--green2);border-radius:12px;background:var(--bg2);padding:28px 32px;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(0,255,136,.05),0 16px 50px rgba(0,255,136,.06);}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green2),transparent);opacity:.6;}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.result-badge{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.badge-machine{border-color:rgba(0,255,136,.35);color:var(--green);background:rgba(0,255,136,.05);}
+.badge-module{border-color:rgba(184,232,200,.2);color:var(--text);background:rgba(184,232,200,.03);}
+.badge-id{border-color:rgba(0,255,136,.5);color:var(--white);background:rgba(0,255,136,.08);}
+.result-reset{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border2);padding:5px 10px;border-radius:4px;transition:all .15s;}
+.result-reset:hover{border-color:var(--muted);color:var(--text);}
+.result-title{font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.15em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.result-url-box{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.result-url-text{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);flex:1;word-break:break-all;}
+.copy-btn{padding:7px 14px;background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;letter-spacing:.08em;text-transform:uppercase;}
+.copy-btn:hover{border-color:var(--green2);color:var(--green);}
+.copy-btn.copied{border-color:var(--green);color:var(--green);}
+.result-actions{display:flex;gap:10px;}
+.btn-open{flex:1;padding:13px 20px;background:var(--green);border:none;border-radius:8px;color:#050505;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;transition:all .18s;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(0,255,136,.3);}
+.btn-open:hover{background:#00ffaa;transform:translateY(-1px);}
+.btn-new{padding:13px 20px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;}
+.btn-new:hover{border-color:var(--muted);color:var(--white);}
+.result-none{text-align:center;padding:40px 0;}
+.result-none-icon{font-size:40px;margin-bottom:14px;}
+.result-none-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.result-none-sub{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+/* ASSIGN */
+.assign-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+.assign-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.assign-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);white-space:nowrap;}
+.assign-select{flex:1;min-width:160px;background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);outline:none;cursor:pointer;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a7a5a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+.assign-select:focus{border-color:var(--green2);}
+.assign-btn{padding:10px 20px;background:transparent;border:1px solid var(--green2);border-radius:7px;color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.assign-btn:hover{background:rgba(0,255,136,.08);border-color:var(--green);}
+.assign-feedback{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:8px;width:100%;letter-spacing:.04em;}
+.assign-feedback.ok{color:var(--green);}
+.assign-feedback.warn{color:var(--warn);}
+.assign-feedback.err{color:var(--danger);}
+
+/* COMPANIES TAB */
+.co-topbar{display:flex;gap:12px;margin-bottom:20px;align-items:stretch;}
+.co-search-input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--white);outline:none;transition:border-color .2s;}
+.co-search-input:focus{border-color:var(--green2);}
+.co-search-input::placeholder{color:var(--muted2);}
+.co-add-btn{padding:12px 22px;background:var(--green);border:none;border-radius:8px;color:#050505;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;transition:all .18s;box-shadow:0 4px 18px rgba(0,255,136,.25);white-space:nowrap;}
+.co-add-btn:hover{background:#00ffaa;transform:translateY(-1px);}
+.co-add-row{display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px 18px;margin-bottom:14px;align-items:center;gap:12px;}
+.co-add-row.open{display:flex;}
+.co-new-input{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--white);outline:none;transition:border-color .2s;}
+.co-new-input:focus{border-color:var(--green);}
+.co-new-input::placeholder{color:var(--muted2);}
+.co-confirm-btn{padding:10px 20px;background:var(--green);border:none;border-radius:7px;color:#050505;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;}
+.co-confirm-btn:hover{background:#00ffaa;}
+.co-cancel-btn{padding:10px 16px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;}
+.co-cancel-btn:hover{border-color:var(--muted);color:var(--text);}
+.co-empty{text-align:center;padding:60px 20px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.co-empty-icon{font-size:48px;margin-bottom:14px;opacity:.5;display:block;}
+.co-list{display:flex;flex-direction:column;gap:10px;}
+.co-card{border:1px solid var(--border2);border-radius:10px;background:var(--card-bg);overflow:hidden;transition:border-color .2s;}
+.co-card.expanded{border-color:var(--green2);}
+.co-card-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none;}
+.co-card-header:hover{background:rgba(0,255,136,.02);}
+.co-icon{width:34px;height:34px;border-radius:7px;background:rgba(0,255,136,.07);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.co-name{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--white);letter-spacing:.05em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.co-pills{display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;}
+.co-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid;letter-spacing:.06em;text-transform:uppercase;font-weight:600;}
+.co-pill.yes{border-color:rgba(0,255,136,.4);color:var(--green);background:rgba(0,255,136,.06);}
+.co-pill.no{border-color:var(--border);color:var(--muted2);background:transparent;}
+.co-chevron{font-size:11px;color:var(--muted);transition:transform .2s;flex-shrink:0;}
+.co-card.expanded .co-chevron{transform:rotate(180deg);}
+.co-del-btn{padding:5px 9px;background:transparent;border:1px solid rgba(255,68,102,.25);border-radius:5px;color:rgba(255,68,102,.6);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.co-del-btn:hover{border-color:var(--danger);color:var(--danger);background:rgba(255,68,102,.06);}
+.co-detail{display:none;border-top:1px solid var(--border);padding:14px 18px;background:rgba(0,0,0,.2);}
+.co-card.expanded .co-detail{display:block;}
+.co-mod-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);margin-bottom:7px;}
+.co-mod-row:last-child{margin-bottom:0;}
+.co-mod-row.has{border-color:rgba(0,255,136,.2);}
+.co-mod-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
+.co-mod-name{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);width:76px;flex-shrink:0;}
+.co-mod-body{flex:1;min-width:0;}
+.co-mod-tags{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.co-mod-machine{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--green2);font-weight:600;text-transform:uppercase;letter-spacing:.08em;border:1px solid rgba(0,255,136,.2);padding:2px 6px;border-radius:3px;}
+.co-mod-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);font-weight:600;}
+.co-mod-url{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;max-width:300px;}
+.co-mod-url:hover{text-decoration:underline;}
+.co-mod-empty{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted2);font-style:italic;}
+.co-mod-actions{display:flex;gap:6px;flex-shrink:0;}
+.co-mod-open{padding:5px 9px;background:var(--green);border:none;border-radius:5px;color:#050505;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:background .15s;}
+.co-mod-open:hover{background:#00ffaa;}
+.co-mod-rm{padding:5px 9px;background:transparent;border:1px solid rgba(255,68,102,.3);border-radius:5px;color:rgba(255,68,102,.7);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;}
+.co-mod-rm:hover{border-color:var(--danger);color:var(--danger);background:rgba(255,68,102,.05);}
+
+/* SPINNER */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:600px){
+  header,.tab-nav{padding:0 14px;}
+  .tab-btn{padding:12px 12px;font-size:9px;}
+  .search-shell,.companies-shell{padding:0 12px;}
+  .machine-grid{grid-template-columns:1fr;gap:8px;}
+  .module-grid{grid-template-columns:repeat(3,1fr);}
+  .id-grid{grid-template-columns:repeat(5,1fr);}
+  .result-card{padding:20px 14px;}
+  .co-mod-url{max-width:130px;}
+  .co-pills{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="data:image/png;base64,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" alt="Eversys">
+  </div>
+  <div class="header-right">Portal de Servicio</div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" id="tabBtnSearch" onclick="showTab('search')">🔍 Búsqueda NFC</button>
+  <button class="tab-btn" id="tabBtnCo" onclick="showTab('companies')">🏢 Empresas</button>
+</nav>
+
+<!-- ══════════════ TAB BÚSQUEDA ══════════════ -->
+<div id="tabSearch">
+  <div class="hero"><p class="hero-sub">Selecciona la máquina, el módulo y el ID para obtener el enlace NFC.</p></div>
+  <div class="search-shell">
+    <div class="steps">
+
+      <div class="step active" id="step1">
+        <div class="step-header" onclick="toggleStep(1)">
+          <div class="step-num" id="sn1">1</div>
+          <div class="step-label">Modelo de máquina</div>
+          <div class="step-value" id="sv1" style="display:none"></div>
+        </div>
+        <div class="step-body" id="sb1">
+          <div class="machine-grid">
+            <div class="machine-card" onclick="selectMachine('legacy',this)">
+              <span class="machine-icon">☕</span>
+              <div class="machine-name">Legacy</div>
+              <div class="machine-desc">Modelo clásico</div>
+            </div>
+            <div class="machine-card" onclick="selectMachine('enigma',this)">
+              <span class="machine-icon">🔮</span>
+              <div class="machine-name">Enigma</div>
+              <div class="machine-desc">Serie avanzada</div>
+            </div>
+            <div class="machine-card" onclick="selectMachine('cameo',this)">
+              <span class="machine-icon">✨</span>
+              <div class="machine-name">Cameo</div>
+              <div class="machine-desc">Serie compacta</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-header" onclick="toggleStep(2)">
+          <div class="step-num" id="sn2">2</div>
+          <div class="step-label">Tipo de módulo</div>
+          <div class="step-value" id="sv2" style="display:none"></div>
+        </div>
+        <div class="step-body" id="sb2">
+          <div class="module-grid" id="moduleGrid"></div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-header" onclick="toggleStep(3)">
+          <div class="step-num" id="sn3">3</div>
+          <div class="step-label">Número de ID</div>
+          <div class="step-value" id="sv3" style="display:none"></div>
+        </div>
+        <div class="step-body" id="sb3">
+          <div class="id-input-row">
+            <div class="id-field">
+              <label>Introducir ID manualmente</label>
+              <input type="number" class="id-input" id="idInput" placeholder="001" min="1" max="999"
+                oninput="handleIdInput()" onkeydown="if(event.key==='Enter')doSearch()">
+            </div>
+            <button class="id-search-btn" onclick="doSearch()">Buscar →</button>
+          </div>
+          <hr class="divider">
+          <p class="search-hint">O selecciona de la lista — <span>gris = sin URL asignada</span></p>
+          <div class="id-grid" id="idGrid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="result-panel" id="resultPanel" style="display:none"></div>
+</div>
+
+<!-- ══════════════ TAB EMPRESAS ══════════════ -->
+<div id="tabCompanies" style="display:none">
+  <div class="hero"><p class="hero-sub">Gestiona empresas y consulta sus módulos NFC asignados.</p></div>
+  <div class="companies-shell">
+    <div class="co-topbar">
+      <input class="co-search-input" id="coSearch" placeholder="🔍  Buscar empresa..." oninput="renderCompanies()">
+      <button class="co-add-btn" onclick="toggleAddRow()">+ Nueva empresa</button>
+    </div>
+    <div class="co-add-row" id="coAddRow">
+      <input class="co-new-input" id="coNewName" placeholder="Nombre de la empresa..."
+        onkeydown="if(event.key==='Enter')confirmAdd()">
+      <button class="co-confirm-btn" onclick="confirmAdd()">Añadir</button>
+      <button class="co-cancel-btn" onclick="toggleAddRow()">Cancelar</button>
+    </div>
+    <div id="coList"></div>
+  </div>
+</div>
+
+<script>
+// ── NFC database ─────────────────────────────────────────
+const DB = {"legacy":{"infusión":{"001":null,"002":"https://forms.gle/SeEzBrVVtycAK2mH6","003":"https://forms.gle/7WUmkkFW8Te1tja17","004":"https://forms.gle/NdabPDhmxiPvUmuQ6","005":"https://forms.gle/kEuZmy3oqySUePA87","006":"https://forms.gle/b5sbBGpUXxwHUjir5","007":"https://forms.gle/Rs7ZHuKFSmMGfuTu7","008":"https://forms.gle/6hEU5MVuhkNvSYJx8","009":"https://forms.gle/Wm5AMHAf2Uy2uAoF7","010":"https://forms.gle/uM3JnetGtSw5jFMb7","011":"https://forms.gle/UNh9en47J49bxv1y7","012":"https://forms.gle/T8GFjS84hFsAAbxV8","013":"https://forms.gle/RhgdYE7H2bBNMFNY9","014":"https://forms.gle/dvEPyDXtC3d9erba8","015":"https://forms.gle/pkyTm6gwJ5v6xh59A","016":"https://forms.gle/TUuHmKD9GRhqqpMp6","017":"https://forms.gle/pqAPThX4D6q7QrSa7","018":"https://forms.gle/1cm8cGtQwFmDpcMx7","019":"https://forms.gle/SHNzb5mh4G4zvfs99","020":"https://forms.gle/wsmKLvKz8SP3Lje99","021":"https://forms.gle/b78XzjjgujNwm5PSA","022":"https://forms.gle/3KvzjpuJ6rXjc5gQ7","023":"https://forms.gle/mvsE47U6TqW5FiuXA","024":"https://forms.gle/yhEvje5Xmd9v5VicA","025":"https://forms.gle/WE1JhCJyT4yAh3bz6","026":"https://forms.gle/DezUuyZMqJA8jJHK7","027":"https://forms.gle/LxGeF2mohddkZ59FA","028":"https://forms.gle/LmdacxzGx1etvY649","029":"https://forms.gle/z7sUzt2jjgHJVv9p7","030":"https://forms.gle/5Xx31hxQf9eDsHZPA","031":"https://forms.gle/Gs4rJAyYaVqPLz4P7","032":"https://forms.gle/Z7YEwXYArXVWrys48","033":"https://forms.gle/tdUGSndDrFTKzCvc6","034":"https://forms.gle/N9LKZAEkioyyMKXJ6","035":"https://forms.gle/CvxdbS4VwD4BRUp88","036":"https://forms.gle/F4K2jRh5c1UaRwzD8","037":"https://forms.gle/NsYHNEE74NHMR7Kr9","038":"https://forms.gle/HkjdxtgbfZFUtnR18","039":"https://forms.gle/eHeNqZUgyqftUSMb6","040":"https://forms.gle/fJKp3rR7fvFCXBEq8","041":"https://forms.gle/F8XY7GwQ9cLDRct87","042":"https://forms.gle/c4soJxEZJbbdqPrW8","043":"https://forms.gle/jeotqK23xrTXGKmVA","044":"https://forms.gle/jWgU6WDUS1T8S6ov8","045":"https://forms.gle/wHgkC9iQjcqYgN8u7","046":"https://forms.gle/obTNBp6UJwA2F6sd7","047":"https://forms.gle/BHbeAb97sBLyF3jQ9","048":"https://forms.gle/2w62Bej3gytDxaaP8","049":"https://forms.gle/vkMaMMiXHNbWBAoY8","050":"https://forms.gle/efhTU3VGcBMrS9qe6"},"molinos":{"001":null,"002":"https://forms.gle/ayKxjacaNYrkvWAs5","003":"https://forms.gle/hB8PqFknJeF598fKA","004":"https://forms.gle/BLaFPR3SUUUrBrg47","005":"https://forms.gle/bYwMQFuwPzfCaPnAA","006":"https://forms.gle/yAyz9mJ2Aq4HveH1A","007":"https://forms.gle/Z5rSsBA7Zzh2Cmit7","008":"https://forms.gle/preKfXym9dLSDsao6","009":"https://forms.gle/qo6ScvKP2aSiHUdo8","010":"https://forms.gle/bvGVZjYFBgSGq2VKA","011":"https://forms.gle/ETtsXF3EKzVv8gLh8","012":"https://forms.gle/JpKco43h6SrbXtWH8","013":"https://forms.gle/rpCLWXxMXqnHjYsb9","014":"https://forms.gle/kSxdsZRB2HNQjY6B9","015":"https://forms.gle/ur12Wq3kqBZfDdEbA","016":"https://forms.gle/Y1zAruZrJgis7zz77","017":"https://forms.gle/6SXubuWeVd41SRcF6","018":"https://forms.gle/6SXubuWeVd41SRcF6","019":"https://forms.gle/Byh6MMHJL5B3Tcbk9","020":"https://forms.gle/gRGBGpzZNCjVFYg39","021":"https://forms.gle/yhUQraMi8gbRZKkd8","022":"https://forms.gle/Tqzj3CFYHwhfkswP8","023":"https://forms.gle/wZVhRdYAULC1avwZ6","024":"https://forms.gle/AThFEqqqNFb27XPU6","025":"https://forms.gle/XFYp7BRJSfs2wrig6","026":"https://forms.gle/XU54Xxp1KR1jFHMF8","027":"https://forms.gle/SbiXwaHPcv5GFrGy9","028":"https://forms.gle/31eWhRQdevh6mwXn8","029":"https://forms.gle/LtBGpCo7T1mEMwK79","030":"https://forms.gle/1dUm691T4MdJmY577","031":"https://forms.gle/M3anMqZz1Tn59gGL6","032":"https://forms.gle/oqDDptUPuTg9CAit6","033":"https://forms.gle/TfL9kwoAFQDiXr5d9","034":"https://forms.gle/fQ7t6KacksTgWoao7","035":"https://forms.gle/39ipz74JLMe6x3Jp6","036":"https://forms.gle/DSHcrPAZ5iwmBVxe7","037":"https://forms.gle/WoNjVthgWU4pKPEf9","038":"https://forms.gle/5Bd8mLVCmMGxNEdq8","039":"https://forms.gle/BLEJoLKu7iCekfN5A","040":"https://forms.gle/156x8fb9n13xpvbK7","041":"https://forms.gle/FgXuqv32bjASnN426","042":"https://forms.gle/ozUfufrpZghZpvcR7","043":"https://forms.gle/HfKMwkP4MjfnPPb77","044":"https://forms.gle/cmd3DrE7M1y5L99V8","045":"https://forms.gle/i8YoeYB2tJbyNnj68","046":"https://forms.gle/E6SNzt4FZQMaWST3A","047":"https://forms.gle/JtCE6xYqomuW9XPG9","048":"https://forms.gle/H5K7hq6nt6DREFJn8","049":"https://forms.gle/yKw4csf3uuezriL39","050":"https://forms.gle/xs57hAFCfmcBKf9x7"},"leche":{"001":null,"002":"https://forms.gle/WXjvnK1JvaaXYmCt5","003":"https://forms.gle/Xj4aE5NfUSK1has27","004":"https://forms.gle/GSTgd2YrTzETVWfU6","005":"https://forms.gle/KyzZs3ManU9RrTRq5","006":"https://forms.gle/epphxWHvMYkpEmA79","007":"https://forms.gle/FjiyumHdEZjKKTzr5","008":"https://forms.gle/tDzNV8LjuaYP458q8","009":"https://forms.gle/6JQWa2AGfE6CwtNE9","010":"https://forms.gle/n6dcP4t6HEd2XEkK9","011":"https://forms.gle/5TnqDp6GhA6xZNUs5","012":"https://forms.gle/6f2DN6GihnoAezhPA","013":"https://forms.gle/3jyYkayaUSgoRWxG7","014":"https://forms.gle/1qdsMUGdesc4ufi17","015":"https://forms.gle/pzozT8uCeFVaBaBKA","016":"https://forms.gle/9ouK3GsvSHBJa4aD8","017":"https://forms.gle/ZAXr24xgiGzKGiRw9","018":"https://forms.gle/yC2eMxaXjEJ6aaWv5","019":"https://forms.gle/k86CoUMfeGmM7sKeA","020":"https://forms.gle/iyUvVGFYqrM8CNJ67","021":"https://forms.gle/Dd6YdmhP1i8V99X1A","022":"https://forms.gle/fdoF5HLBfXzSZBaq6","023":"https://forms.gle/voud8yJLKEdpD7cZ6","024":"https://forms.gle/oUfHBShRVu9gsizr5","025":"https://forms.gle/Z3EcU1yM8FpubDZ5A","026":"https://forms.gle/GNZGjw5xDknuwNZ58","027":"https://forms.gle/WH2i7G1dF7KbVmHJ6","028":"https://forms.gle/qiZhDqmt9jiVLLR78","029":"https://forms.gle/tGGUbnepkpUguhzX9","030":"https://forms.gle/5eztSivfYS1ucL9j9","031":"https://forms.gle/3p854studDRbqp9h7","032":"https://forms.gle/nhDYnNUunX4T9buv5","033":"https://forms.gle/TWbzVg8B8f3WRQFa8","034":"https://forms.gle/xPtcxdvaZg1xJL4p9","035":"https://forms.gle/EFDVd6HutytvGoP3A","036":"https://forms.gle/CbzbkfvStYagF9tK9","037":"https://forms.gle/KtTyYacdUZsHGAM76","038":"https://forms.gle/8kLdkeW3gagfQBnm9","039":"https://forms.gle/JQkAUyzCascZkS3Q8","040":"https://forms.gle/w8J7s155FBUDECFg7","041":"https://forms.gle/DiE3Wy56VJ4LykJa7","042":"https://forms.gle/3f8vHGHgUGS4ww4W8","043":"https://forms.gle/ZbVpB3U8HzY3EsSj9","044":"https://forms.gle/sfL3ZTeatLhNE8ar5","045":"https://forms.gle/qpLBHeUxHtNvUjvFA","046":"https://forms.gle/R4aejm2zurWd7AaP9","047":"https://forms.gle/oVjgJkQsAv68ahAn6","048":"https://forms.gle/6gVkVZ5vt7SVVrVv5","049":"https://forms.gle/o68FNRJwQhfY9y4U6","050":"https://forms.gle/EANdkHFyQfgSkXne7"},"hidráulico":{"001":null,"002":"https://forms.gle/LGq2nB8DWqs2jLqR7","003":"https://forms.gle/SR4XFTRuh63EKciQA","004":"https://forms.gle/oFSU9fADu26mgLAT6","005":"https://forms.gle/UXD6Cmv6ff56jJNz8","006":"https://forms.gle/8AjnoYJ1BuVBaJJJA","007":"https://forms.gle/w7H47jv2y8sCAQcq7","008":"https://forms.gle/nbAU96WkuAkT8rry7","009":"https://forms.gle/Vpn15niCw7oYLGA46","010":"https://forms.gle/JwrB4bK5pNvGx2sE7","011":"https://forms.gle/ZAKvBdUz7d24pwAA7","012":"https://forms.gle/8KJaXqiNAVfGVXaTA","013":"https://forms.gle/PSKwqnZNXJ2epjSn9","014":"https://forms.gle/D1RQmrUhVKRXy6DD7","015":"https://forms.gle/w1mgXfCj1yMrDtet7","016":"https://forms.gle/ffZHpssCFGCkJy3D6","017":"https://forms.gle/mwYvgvrzL1M6fA5a6","018":"https://forms.gle/VM66k28EvfSZnFGQ6","019":"https://forms.gle/sN9sLoKv4feSJTE98","020":"https://forms.gle/nv5sQpNK97C78Zpd6","021":"https://forms.gle/h6JbKWEqzY46fyYR8","022":"https://forms.gle/kqz9h868QvdS8LJr8","023":"https://forms.gle/a2vjp1mn7Wt1JY7p7","024":"https://forms.gle/3r5wJjchnsrUdZNS7","025":"https://forms.gle/RG6UqAFn4sTdgdVH9","026":"https://forms.gle/5fn3DXvQ9mobzr9x7","027":"https://forms.gle/7fTx5z846xBo74qK6","028":"https://forms.gle/YKxtkhjyrH25dRzv7","029":"https://forms.gle/BqfhMEjd9PXazzMz7","030":"https://forms.gle/yUa51S5eiMYWVZKw9","031":"https://forms.gle/yvn8Sfc5hzY66s1h8","032":"https://forms.gle/FYXKtwZUT7Uztj357","033":"https://forms.gle/A1WLVqAQRA1e2jZc6","034":"https://forms.gle/UQTRf8pe3gxoZz2EA","035":"https://forms.gle/4tFS32vu2NRZBXPy5","036":"https://forms.gle/QRRqtQJ6ihmbA3oA6","037":"https://forms.gle/uHGx2ZhcmgsuXrMW8","038":"https://forms.gle/KaB1p5oZmgjd8RKm9","039":"https://forms.gle/Ltxwe3ugfGSX1HtX7","040":"https://forms.gle/nSUdBGkoM166joC76","041":"https://forms.gle/JQ4srS4rHQAUDJCS6","042":"https://forms.gle/9jWaWKAdMb7vxPTGA","043":"https://forms.gle/wejso6pS6qS4GQvCA","044":"https://forms.gle/U1dhATsDyAAuqdqr6","045":"https://forms.gle/fD8VhBwyRBeWGRkL7","046":"https://forms.gle/Tf19sTrHW7SaoPqXA","047":"https://forms.gle/Bj9EE3WB2puMKsRa9","048":"https://forms.gle/pQrLq99EjiYJToty9","049":"https://forms.gle/UhfBtYo61Ddz79nf6","050":"https://forms.gle/t2SH3GPC29ybyRBe6"},"vapor":{"001":null,"002":"https://forms.gle/gcVfMwmn2kB8uUFH7","003":"https://forms.gle/83n6WbyzUEpoRkFC9","004":"https://forms.gle/YwwcjNxWGQzUmcqw9","005":"https://forms.gle/GBJ83uUA7G9Fap9CA","006":"https://forms.gle/77FW4ALQGmWELv8Y6","007":"https://forms.gle/2HRedJjJRvjJz9B27","008":"https://forms.gle/ui2bwsBxjA1wwWXM7","009":"https://forms.gle/WknJaDpf8N9Hg8hW7","010":"https://forms.gle/uRuUtnKKbPEPVyba7","011":"https://forms.gle/9XF14KMy2fA8VYR9A","012":"https://forms.gle/HwQQnPUHAC1nkywu5","013":"https://forms.gle/hPBBQJrb1AtpDafQ8","014":"https://forms.gle/h5DF63H5VfffGByK6","015":"https://forms.gle/GE2wjgAHfd2sPzuV9","016":"https://forms.gle/TNmkxtpkQSF3wuUC9","017":"https://forms.gle/XfD9dVHV3xrjXqtU6","018":"https://forms.gle/ZnL9U2KVbaNVL5RX7","019":"https://forms.gle/GfYx9t1aXXebZ5fr9","020":"https://forms.gle/RpU8fWaA2twY5LZa7","021":"https://forms.gle/Awur9X8dXpfG7Zgv9","022":"https://forms.gle/KYgLC2CtKmpwFJP86","023":"https://forms.gle/gjkMCDXJi1Ts9H67A","024":"https://forms.gle/CKh5UaXQqwz6wBWp8","025":"https://forms.gle/UetjwHoqcqr4Whq57","026":"https://forms.gle/ehg2b3vjSnCDM97p6","027":"https://forms.gle/hmz8cgQhv6QAfoSY9","028":"https://forms.gle/qVMXt7gXftMSKc3W9","029":"https://forms.gle/FjXRCueABxnz8rHQ7","030":"https://forms.gle/tPLgoQ3QffTxrJ5L6","031":"https://forms.gle/jLDHCf49ZDsDH28R7","032":"https://forms.gle/AmUPxHGtLzzgK52c8","033":"https://forms.gle/gkLRxL3y6UJetrVr8","034":"https://forms.gle/XYhp8pGSbvBrPQ71A","035":"https://forms.gle/Gsrg1eRePi96nEw2A","036":"https://forms.gle/VVFVsjKRzbuDvAvx6","037":"https://forms.gle/uw9bubVKDyroAgqU9","038":"https://forms.gle/oWuNXrGteDDwACdm6","039":"https://forms.gle/PjVsnDoXUeSGiemG8","040":"https://forms.gle/MpDr6RkjJsBayLmdA","041":"https://forms.gle/1om6WLSe8odTT5Tf6","042":"https://forms.gle/826wgQTLtps3nhXs5","043":"https://forms.gle/XkPMmK5quoKGaKat8","044":"https://forms.gle/4VQNn5tyVdrrXHke9","045":"https://forms.gle/bdiiLQ2uTKoCCBwj7","046":"https://forms.gle/C3TsLTByLEKobSMh8","047":"https://forms.gle/an9RgN8vn6wzsfzz7","048":"https://forms.gle/C2uGdt9xpWvBvQL68","049":"https://forms.gle/TVxGDGSuq9FDmpmB7","050":"https://forms.gle/XSLLiwfRzWSRg539A"}},"cameo":{"infusión":{"001":null,"002":"https://forms.gle/U1Kc5dEb6EsMQzuNA","003":"https://forms.gle/QcgqRwn7fm9Z9ZNK9","004":"https://forms.gle/yakPFbeDTHe2vLRc9","005":"https://forms.gle/vqZsmBRLxAyEeh7S7","006":"https://forms.gle/b59SjK5YRZpKH8s16","007":"https://forms.gle/x7aXg9Rkg63dP2dT6","008":"https://forms.gle/v5aUZBWDf7dud5A66","009":"https://forms.gle/XyerBAbqrm9SJoWy9","010":"https://forms.gle/t2PAXJ1e3SgriWyu6","011":"https://forms.gle/yXe3JtqFWf2k22Lq8","012":"https://forms.gle/u4EPNDVXML1dncCA7","013":"https://forms.gle/NweAH7vSqH1QsTrCA","014":"https://forms.gle/SjsoL9sQaGzTDeb67","015":"https://forms.gle/xeKzAGMbivhD8Smx7","016":"https://forms.gle/DEM2vcKt6y784JeT7","017":"https://forms.gle/iaPH4abYUZww3aAJ8","018":"https://forms.gle/JeoPKsMLyuKfm1na9","019":"https://forms.gle/aXVSKTSMaU7n3r5e9","020":"https://forms.gle/38HdWK9DNneq7U1AA","021":"https://forms.gle/As9xSHZey3LXbkr57","022":"https://forms.gle/KwRh7vgzajSZCrz39","023":"https://forms.gle/C9KCyZzZLwZowjrv7","024":"https://forms.gle/L69Wsp6eaAzFTZmD9","025":"https://forms.gle/ahecJ1sXhvHUeJWk9","026":"https://forms.gle/szqXM2twzmsH9s8UA","027":"https://forms.gle/TEyc6jXGNHXzVKsYA","028":"https://forms.gle/rb6dPJw35vYbe55D7","029":"https://forms.gle/2G1fg9xtBe1sCvmP8","030":"https://forms.gle/bVhnyUe3Q23Zc8Dr5","031":"https://forms.gle/EQiarwVqDCHi9JK69","032":"https://forms.gle/pph2Ss2ZEpEHgtYp8","033":"https://forms.gle/s9TaPi5ywRqKiXJx9","034":"https://forms.gle/xvwBHDCb18TqupZAA","035":"https://forms.gle/5DFNdHBtJRxTYv9c9","036":"https://forms.gle/J8ZEpwf8g2eKMLLn8","037":"https://forms.gle/8bAmFSa9iHmBHG5H7","038":"https://forms.gle/uGRF8hYDUQ7qc4qG8","039":"https://forms.gle/DLUzpgywHQpDPhDw5","040":"https://forms.gle/hFfaL4owUsiXtrMS8","041":"https://forms.gle/FqT8aq6du9hgzC5K7","042":"https://forms.gle/UJkqNCS3iBnnzw4C6","043":"https://forms.gle/7ZF513hmZqXTaW4C7","044":"https://forms.gle/jCNkGcHDhN29BH4UA","045":"https://forms.gle/8US7qJkPsU7CRg1y7","046":"https://forms.gle/4sKQZtC3yiAKEBPx6","047":"https://forms.gle/xSDpMRmqrPXutpwF9","048":"https://forms.gle/ECLQWw8od7vFDCuw5","049":"https://forms.gle/r1MS9Fwt2x5asbcm6","050":"https://forms.gle/8A9jdV3otAK7yq4C9"},"molinos":{"001":null,"002":"https://forms.gle/fNFgYmwvCMPYRado9","003":"https://forms.gle/yBGnRHzpmrjpSdjj9","004":"https://forms.gle/pUsybQrEmgNaTgYe8","005":"https://forms.gle/PVko6b1kizaizV1S9","006":"https://forms.gle/sss4E861U4nbNFTp6","007":"https://forms.gle/q5dF7zKEGgwtKBz17","008":"https://forms.gle/9wGc5usdT64ZuEGz5","009":"https://forms.gle/upDxwsAuHwjHh12E9","010":"https://forms.gle/1FqVBji8aePk2t6z8","011":"https://forms.gle/NhQd2hueK1sPE4PL6","012":"https://forms.gle/xAo9DRqVc6HiaHeJ8","013":"https://forms.gle/wUAEfZXP7CnC2dBE7","014":"https://forms.gle/vdoA9ptnxb4otSLJ6","015":"https://forms.gle/cKNdjAnDnJgicoZ29","016":"https://forms.gle/WSHPuGsZrv8ysYUE6","017":"https://forms.gle/TutJUegRWq3Fja7M9","018":"https://forms.gle/uwioAzNiZcZCQRHk9","019":"https://forms.gle/xYgfWMZu1cW4x8zs8","020":"https://forms.gle/EspvmdsfQ2YQLVPU7","021":"https://forms.gle/S3LnySp1ZWDWRNuT9","022":"https://forms.gle/Y66kDLm2KqQdDmQ26","023":"https://forms.gle/Cpf8beQVxv23s8m37","024":"https://forms.gle/Xd4fZNBg27ceVHZo9","025":"https://forms.gle/GaDwTgKE78HDbofA8","026":"https://forms.gle/32RjmFDB1QSJ99Ep7","027":"https://forms.gle/unBDDQuKuSdMH6cE6","028":"https://forms.gle/GF6G43JxjNdaRpMk9","029":"https://forms.gle/uTu7wfyY1pteNV6B9","030":"https://forms.gle/MqzCayQChhinBohd6","031":"https://forms.gle/P4LYCp16yw7p7qBH9","032":"https://forms.gle/aq2tW5fPunCR5hgQ9","033":"https://forms.gle/nhKQ9rmfpTCGbwGq5","034":"https://forms.gle/amH2uqAwTFJeoxeR6","035":"https://forms.gle/eYchR8EbdWw8LWrG8","036":"https://forms.gle/jsabLsuZe1NBVjhJ9","037":"https://forms.gle/EPdD1JQvyJp4F7eJ7","038":"https://forms.gle/skm8XEAYj61dsEGQ8","039":"https://forms.gle/4b4w9GmvUWvriRPH9","040":"https://forms.gle/YAaUm5tB1uk9BJJ17","041":"https://forms.gle/7tbMc9pRbbxUbmbG7","042":"https://forms.gle/A6YX16QG2JWuWmQp7","043":"https://forms.gle/d2cqQV2FV2B712Eq5","044":"https://forms.gle/GpqRmThR3L8KoxR77","045":"https://forms.gle/8RMeQFwuaQW5dXG99","046":"https://forms.gle/8DrVxyUPB86Wz2tE9","047":"https://forms.gle/BWVWTCEeAeHB8wYV9","048":"https://forms.gle/kK1GU3xvzRgvMUj78","049":"https://forms.gle/vXXmG61KtiiRWeZ38","050":"https://forms.gle/biTudzVPtV32sbxD9"},"hidráulico":{"001":null,"002":"https://forms.gle/vKBXKgb5sD4uB3qx8","003":"https://forms.gle/Lgp77dxyQF4YNaT3A","004":"https://forms.gle/3jHfTgajvMaZAu3f8","005":"https://forms.gle/2ALmzVGzzvAkNF1q7","006":"https://forms.gle/Lm6m1eA8QRtus7Df8","007":"https://forms.gle/xsJxP3mHRzv7TbfS8","008":"https://forms.gle/UFMe3UWJPAyUAnFH7","009":"https://forms.gle/K6ZPuem6zzBnVphJ8","010":"https://forms.gle/2MxfsjCQhAqzP3ef6","011":"https://forms.gle/ZNV8QRP5JsYxouma8","012":"https://forms.gle/dcHDFFMMktfj9huCA","013":"https://forms.gle/vT341VuAE9dnZJCC8","014":"https://forms.gle/3udpBomrt7ijpSMo8","015":"https://forms.gle/cxgadYL8Wx8nZBpp7","016":"https://forms.gle/gv4Ugf2YnGwHsrya6","017":"https://forms.gle/gv4Ugf2YnGwHsrya6","018":"https://forms.gle/2zg7JgLDuCCfwGMi6","019":"https://forms.gle/fZL8qzoP7HfvMHGo8","020":"https://forms.gle/nnRg49aFprvjzvvX8","021":"https://forms.gle/kbqKarWEePEpy1ii9","022":"https://forms.gle/zNzncJXP8mLsod9e7","023":"https://forms.gle/ZrfGsifDwTPHxQMcA","024":"https://forms.gle/y313Vgz1QvRcuqQp8","025":"https://forms.gle/FHF5KSAHuVTKR38C8","026":"https://forms.gle/15ij5576DUHhaHQT9","027":"https://forms.gle/BroronhmM9iw4AZL6","028":"https://forms.gle/rjZSpsBi3GANccss6","029":"https://forms.gle/kyUyZYcCTQ23tuEL8","030":"https://forms.gle/NPTdt7nMWvXE6CYo6","031":"https://forms.gle/FpNXTnLfqSVpBtdn7","032":"https://forms.gle/cWBVerTPJNPJ1rYg7","033":"https://forms.gle/SrNvHp9eiexHdMSv6","034":"https://forms.gle/xPqQ5Auf7rLmxzkY7","035":"https://forms.gle/TwQXbiyr12SYjYj66","036":"https://forms.gle/RQxvd9htWHSoz4x28","037":"https://forms.gle/YYeCMxRJXv9Bmvxw5","038":"https://forms.gle/3SRvLtNDrtnpAvZQ7","039":"https://forms.gle/qE5JNJgUDam67TpFA","040":"https://forms.gle/Jpq8GPVf9SNVMQXy7","041":"https://forms.gle/McuPptL9yhBZw9k68","042":"https://forms.gle/Ci1QUZRqzw8aiC189","043":"https://forms.gle/5moSHGTz5P1TpLuP6","044":"https://forms.gle/tHAXGeKZduNwNvsUA","045":"https://forms.gle/5QoohZTPs5EX6Y9B6","046":"https://forms.gle/sWddsw7xg7SYkKD16","047":"https://forms.gle/gLHeQGu5BD3cuA3T6","048":"https://forms.gle/mcwVfi1xvPfK6car7","049":"https://forms.gle/fb5YnsWSmAjHiyxV9","050":"https://forms.gle/SwdQ6TjiMB1SKpwW8"},"vapor":{"001":null,"002":"https://forms.gle/SzMPsEoNQQWPXWFf7","003":"https://forms.gle/yL5pHDyZyxugpE8n8","004":"https://forms.gle/hVCUmXFW4DQHueka9","005":"https://forms.gle/SXfEPYzg337verux5","006":"https://forms.gle/SGsHD5PeqFPfBBzd9","007":"https://forms.gle/rJ63bT8zrT7eTUXe8","008":"https://forms.gle/WxQ17WEZncnE8Fi77","009":"https://forms.gle/tP6urAZPrJnnw2937","010":"https://forms.gle/B6K1m3pwLpY86k3D6","011":"https://forms.gle/ZWaBVR84Zj2UTewC9","012":"https://forms.gle/4PYbCQDTo36UFj1j6","013":"https://forms.gle/ZUcWCA63fsSbvRBb9","014":"https://forms.gle/raXXVhGr3t34LePt7","015":"https://forms.gle/qnTup3yxt3qtPdQXA","016":"https://forms.gle/DyejcAEfENhPShHF9","017":"https://forms.gle/LQwSvPZrbxM3DsGJ7","018":"https://forms.gle/qg1UnEhi1qiiAFym6","019":"https://forms.gle/da2F1ZuwQ9wwfw3m6","020":"https://forms.gle/wqDLTCLGzDTXy1597","021":"https://forms.gle/pADoovNryEt6qTsi8","022":"https://forms.gle/5LGseyTHdXKCgbMG8","023":"https://forms.gle/bW4rqitBDZ4hmWhg8","024":"https://forms.gle/uPDebptrKkC8Zof99","025":"https://forms.gle/hkq3PhpZ4gPKfw4u6","026":"https://forms.gle/ffweK5YZuGqqXG7B6","027":"https://forms.gle/CDvVfvSw3JfPi4B97","028":"https://forms.gle/t2M6LJt8P7iVgJ1i6","029":"https://forms.gle/PaiotRFWu1Kj3JMg8","030":"https://forms.gle/w7szpPFqMUkVV95b8","031":"https://forms.gle/j7kk7CJBCbwTfMhZ8","032":"https://forms.gle/c9rvC7hmjpVeyHyi8","033":"https://forms.gle/zwFeK9hfsHjgGkwx9","034":"https://forms.gle/U253JcuPw5uighBaA","035":"https://forms.gle/7kAAsXMcxtrh6bJd7","036":"https://forms.gle/1a122aGZKTT9MWmM9","037":"https://forms.gle/3akPkYDZNyhf1PY16","038":"https://forms.gle/vpcA9rC2m2i2yFiH9","039":"https://forms.gle/Mg11zwecNxEvGHFX9","040":"https://forms.gle/t5cZtypG4rNERhMU6","041":"https://forms.gle/65rB4h6dJrW1AoDc8","042":"https://forms.gle/mvh2KaSAVxxCD1vA8","043":"https://forms.gle/cwrtrCEJkb8R5Tg47","044":"https://forms.gle/jpcPXX29nZj5ue299","045":"https://forms.gle/oWy3MvmyBRtuspW1A","046":"https://forms.gle/Sh7H5RwmNUTEcKyg6","047":"https://forms.gle/XVnP59frrYuTA7sX8","048":"https://forms.gle/Jy5GCZoXhH9QHZuJA","049":"https://forms.gle/GM2zW2umdMCs9kWT7","050":"https://forms.gle/2JFqgTEr5o3MdCpe9"},"leche":{"001":null,"002":"https://forms.gle/ZMBbZan3f8MKoMB36","003":"https://forms.gle/d3cTmt7F5yDGDy8R8","004":"https://forms.gle/x9trJoqcPMaY3KTE8","005":"https://forms.gle/RxNVsWTeV1hACits6","006":"https://forms.gle/vyt6gQzFSfatNLbh8","007":"https://forms.gle/p99iMtYXgTac2MdB6","008":"https://forms.gle/brR1qnmdytYBu17RA","009":"https://forms.gle/64sMSs92hKQsAic98","010":"https://forms.gle/wNiCh79Njjnnc1mF8","011":"https://forms.gle/MpFeAEJHmKnQ8J456","012":"https://forms.gle/MpFeAEJHmKnQ8J456","013":"https://forms.gle/bLvmgWR7hiMqmc1D9","014":"https://forms.gle/ofuhSSs2G235Z935A","015":"https://forms.gle/MYX4n18C9tvbbEur9","016":"https://forms.gle/yRUdDfJZiEf3f7nF7","017":"https://forms.gle/wGvhFahd23x5kmzf7","018":"https://forms.gle/T1KmSxvznjtKWQcu7","019":"https://forms.gle/rrpxk2FzKq8zLnkr7","020":"https://forms.gle/eG4CUoWhKu4mkRWy7","021":"https://forms.gle/UmMp3Uy8QTY2L5XX7","022":"https://forms.gle/hxQVVUrZ2RET9TuF8","023":"https://forms.gle/SeefNtqtDG28gVDx8","024":"https://forms.gle/xMaLw2mKG4jkc98J9","025":"https://forms.gle/DtaGmLPBoe7LwVc27","026":"https://forms.gle/XYnP4aNSACZxWwzFA","027":"https://forms.gle/ri4yWGb6Mrk1ehbq7","028":"https://forms.gle/YW9cnVVVkX4H637L9","029":"https://forms.gle/oftK98EB4zzfbSmy9","030":"https://forms.gle/Kxo7NDpH55PTEusz6","031":"https://forms.gle/1ttPhvPhapEgDq7C7","032":"https://forms.gle/ztGmEGNr3yKBmpWz5","033":"https://forms.gle/J2WF9wv185zmFdAv8","034":"https://forms.gle/REpkRLMmNZq2Mxko9","035":"https://forms.gle/3bUrdPsAYpg96ztQ9","036":"https://forms.gle/TRq32VfJyzcSMkmR9","037":"https://forms.gle/8w3Fd4fTwapoLCvG9","038":"https://forms.gle/KsmrSobg4qup3bodA","039":"https://forms.gle/zvggqbZxH6FAjk1q8","040":"https://forms.gle/SMCpkSrAXuXuPdm26","041":"https://forms.gle/eBasxdRXdMRLpiAh6","042":"https://forms.gle/1JyuJcXuS7U89FKDA","043":"https://forms.gle/jFs4ykP9DKdnmVxbA","044":"https://forms.gle/173GLbHeaN7o7TW76","045":"https://forms.gle/QqVsaGKEz8SzJFMT8","046":"https://forms.gle/KqKbZTbUBMU21WNU7","047":"https://forms.gle/uuna4XswpNcgYtAz9","048":"https://forms.gle/qYqzrFptoxCAt6iUA","049":"https://forms.gle/HHJeJCGLMbjdpfxz9","050":"https://forms.gle/pH63uUHnrhxtMFML8","051":"https://forms.gle/bHF9pKReDDDFqkRN8","052":"https://forms.gle/uTrSMsPy5e3sXafC7","053":"https://forms.gle/To4nGAM333LeV8RRA","054":"https://forms.gle/cW1J2DggLCs9AiM28","055":"https://forms.gle/1Sktz9E8R8dyeUps8","056":"https://forms.gle/KBiRjgpAz3FZ2oc47","057":"https://forms.gle/97ocf96M9uLM4RaS7","058":"https://forms.gle/eDKEEGyfVrsN9WtC6","059":"https://forms.gle/vecMjBTt6P72q8Cy9","060":"https://forms.gle/yo6HkQxDetvqsUy7A","061":"https://forms.gle/mMvAUxpJECUPTw5E8","062":"https://forms.gle/SaRkGV7wUvZ1vxDc7","063":"https://forms.gle/dUdt3giSExS9MQhN8","064":"https://forms.gle/SXeTC1JjyfBjZZt89","065":"https://forms.gle/YVAYtM3dX4p8pfdN8","066":"https://forms.gle/TZqPALKSU3J48bZw9","067":"https://forms.gle/UJFEBKTMgauphvcU6","068":"https://forms.gle/etDarUAsWPHPDcL2A","069":"https://forms.gle/2PP6KKs3ndQ13Y9E9","070":"https://forms.gle/aT4y2htrG5Rc8be88","071":"https://forms.gle/rRQR3YrUbi6uiu6h8","072":"https://forms.gle/MeYFHgrQeWZW3Reo9","073":"https://forms.gle/KwW4unpnuLy7Hqkj9","074":"https://forms.gle/mNd7Y316xrAcgGMR7","075":"https://forms.gle/ZJFG6HyrKZUeJUhL8","076":"https://forms.gle/f1NQWZR3LVZAfXqN6","077":"https://forms.gle/eenTCNMzniQo4Q377","078":"https://forms.gle/FZcDmy3nwUgxocs69","079":"https://forms.gle/HwtT1eKqZq9G7Qtu7","080":"https://forms.gle/EEXxMTw1hfhsYBTKA","081":"https://forms.gle/FEgcXJNwtcnR2qQh6","082":"https://forms.gle/Jq8aLx1oMeWcPB9G9","083":"https://forms.gle/QF6ddAhssjAEKwPs8","084":"https://forms.gle/MUK7WPvXZeY6Esbi8","085":"https://forms.gle/P6mf52Teq9utcgFx5","086":"https://forms.gle/h66DcsE6K5hgvyni8","087":"https://forms.gle/8yViu7QRuVTEXDx67","088":"https://forms.gle/7DJhmQdeirarx8Bv7","089":"https://forms.gle/mgtvKVk3ouZYk1Ui7","090":"https://forms.gle/wahaNMvHxQMQXaC59","091":"https://forms.gle/DCwD1qCz1HAX9mRH7","092":"https://forms.gle/WQcvKjm3mKhVHMAQ6","093":"https://forms.gle/JuV11DTcEiTyuSTb7","094":"https://forms.gle/4YA5hq8szdDys7sf9","095":"https://forms.gle/P8rL7sGKKPCxhYLw8","096":"https://forms.gle/BeQXtDQYs16LToqu5","097":"https://forms.gle/i9mhdvBZg2w2PFYj7","098":"https://forms.gle/RtnRXF6pEkF4Yg9f9","099":"https://forms.gle/mr8Fp32hqfexkCpc6","100":"https://forms.gle/emRQsB3Urm63jzSE7"}},"enigma":{"infusión":{"001":null,"002":"https://forms.gle/DyDukqstUkG6yYeY6","003":"https://forms.gle/v4FaE6FErC5uriw96","004":"https://forms.gle/4ujYRgkcBPEsjpCy8","005":"https://forms.gle/JmS4rsz8dam2MZr59","006":"https://forms.gle/Le6ZtJ5h9B6KHbbU8","007":"https://forms.gle/yBGxxTgHkEzEqTZ6A","008":"https://forms.gle/nWsc3AMmroRtE8HU6","009":"https://forms.gle/x13fsg8XZJ2hFCjQ9","010":"https://forms.gle/259MStnnMKQFXkTm7","011":"https://forms.gle/FRwCdYsWxrkgc9e89","012":"https://forms.gle/dQVF4hJV2j19L9bH9","013":"https://forms.gle/MeQitRYijDmU4Wup7","014":"https://forms.gle/961Poni9WFc9h1Ty5","015":"https://forms.gle/G7GiCgWfdergGN1h6","016":"https://forms.gle/K57Rz6kGzfYrAjo58","017":"https://forms.gle/1cm5CeLyx6yh3WmB8","018":"https://forms.gle/PuErS7U8Lyi24YYUA","019":"https://forms.gle/ZLPj6dbonCNEpbom9","020":"https://forms.gle/JkNrSeZVZrwuwYUe7","021":"https://forms.gle/RWUCkCGK5RVQ4hxY8","022":"https://forms.gle/Fc7zY2PUPuYr3acf9","023":"https://forms.gle/bVZVx2xNkQzsWGZq8","024":"https://forms.gle/2ThPTDw6bJqvmkF89","025":"https://forms.gle/u8EgdZu8WtX7cPan8","026":"https://forms.gle/QmX6TaSgvoqUWiDZ9","027":"https://forms.gle/BYiYgMteHSCzUCGC7","028":"https://forms.gle/vj91816Krfx5fumH6","029":"https://forms.gle/XtRw31JdVHbqgUnz5","030":"https://forms.gle/1UY48oE6xf8JYzNh6","031":"https://forms.gle/7ztnCdzB8WLnfZPk7","032":"https://forms.gle/uofqzRMaUCrUbiRBA","033":"https://forms.gle/LMkFwwfLAyAmTBqw5","034":"https://forms.gle/K2pmtr1DFSGpkUCK8","035":"https://forms.gle/3pvfU6ieVsmDESrT8","036":"https://forms.gle/h1BnL7SXWbceovbc6","037":"https://forms.gle/dX9RWgYpVmwAAt9T9","038":"https://forms.gle/USopuTeCckczN2AE6","039":"https://forms.gle/VMkvznFUTqCSR5Gr8","040":"https://forms.gle/8SdhxpTUMqgughKLA","041":"https://forms.gle/mxVRN47W91d6LtcF9","042":"https://forms.gle/PpweRsp5qKsJHi2H8","043":"https://forms.gle/jknA9ca4mhG8eqrF6","044":"https://forms.gle/Ns1JHb1heenvXFQy8","045":"https://forms.gle/w5PHPsrk1ESojZZe6","046":"https://forms.gle/9vCo8jZGpPVknPyo8","047":"https://forms.gle/BDKuy37Zf1LyEY7M9","048":"https://forms.gle/8Q8jC5r2aDjQcyYi7","049":"https://forms.gle/955B8hSfZxWT1oC98","050":"https://forms.gle/Tgw3AukRmu1JkeaP7"},"molinos":{"001":null,"002":"https://forms.gle/Z5nudWAjSNsvjG5B6","003":"https://forms.gle/X4Mea6NW6T19ciAEA","004":"https://forms.gle/KGtVXAhQr8kKffFf7","005":"https://forms.gle/xow6837ydvwKGDSL9","006":"https://forms.gle/s2Yyn4HjCNrSanw38","007":"https://forms.gle/UL4VA3FyWyApJVtw5","008":"https://forms.gle/ZR2VwwpSBM3n563T9","009":"https://forms.gle/vTfotkY2CZRAb8qK6","010":"https://forms.gle/NXm6UY3YqxgKp1ETA","011":"https://forms.gle/dt179uwRooKqxLDRA","012":"https://forms.gle/6qHvYffFFjRe2cYR6","013":"https://forms.gle/fbCm6TaJCBBAtZoi8","014":"https://forms.gle/2jkTv3AdCnKmvq2V6","015":"https://forms.gle/iFBrwK5wfAMMoTMF7","016":"https://forms.gle/nZVUiwLS82kiqLXU7","017":"https://forms.gle/g1h1vQkQ5kFtAPmP7","018":"https://forms.gle/dEpf3chzRPw68QoG9","019":"https://forms.gle/ee923u1ogEXstohq7","020":"https://forms.gle/3MaXje7CmvGhPboN9","021":"https://forms.gle/3tyQiGXpx5PuBBKy7","022":"https://forms.gle/AK6QdLTHE9DFy5oU9","023":"https://forms.gle/mJZw8sSaLdKg5ZUr6","024":"https://forms.gle/AFtrA9FvZE9KB6CJA","025":"https://forms.gle/xzkndfQRE5TQEzm97","026":"https://forms.gle/WegagStpySkU44Ty5","027":"https://forms.gle/AR4DSnHLT9Jeux6U8","028":"https://forms.gle/WxzgMtNhF5W2pkMN8","029":"https://forms.gle/RzeUGZDSSjgCA6wc6","030":"https://forms.gle/WVJsjNMUechGn5RG6","031":"https://forms.gle/Fbp4kLQGiiLuqDLn7","032":"https://forms.gle/jkm38a4K7e9YukVK9","033":"https://forms.gle/pbLKKiLdYjihXsybA","034":"https://forms.gle/DwHmjz4mVVhpbgzU7","035":"https://forms.gle/ULtKodyxzxdbxb3M8","036":"https://forms.gle/ysXQ2k28SChuNDBS8","037":"https://forms.gle/UZ4L7ew1y1LFvEwJ9","038":"https://forms.gle/DgoCquaVzZA3vTcG8","039":"https://forms.gle/eT6WTDGChJY4JmGW7","040":"https://forms.gle/gSskdHagKTwNH1ug6","041":"https://forms.gle/5k7WtgWCFcTWiCSy5","042":"https://forms.gle/8dmUmV1RKJU1swmA8","043":"https://forms.gle/KzuyEiSc1G74ybfB6","044":"https://forms.gle/QXxxGwv3kAaR212Z8","045":"https://forms.gle/7P5TRbdcmB3rFdPD7","046":"https://forms.gle/SXXMjS73VZ9fPaWH7","047":"https://forms.gle/FhBhoiwML4wp2MQD8","048":"https://forms.gle/bPJeGiWhafDRTJta9","049":"https://forms.gle/AH1rK96hqznVQrju6","050":"https://forms.gle/dReGKU6q24sTs7tC7"},"leche":{"001":null,"002":"https://forms.gle/ZMBbZan3f8MKoMB36","003":"https://forms.gle/d3cTmt7F5yDGDy8R8","004":"https://forms.gle/x9trJoqcPMaY3KTE8","005":"https://forms.gle/RxNVsWTeV1hACits6","006":"https://forms.gle/vyt6gQzFSfatNLbh8","007":"https://forms.gle/p99iMtYXgTac2MdB6","008":"https://forms.gle/brR1qnmdytYBu17RA","009":"https://forms.gle/64sMSs92hKQsAic98","010":"https://forms.gle/wNiCh79Njjnnc1mF8","011":"https://forms.gle/MpFeAEJHmKnQ8J456","012":"https://forms.gle/MpFeAEJHmKnQ8J456","013":"https://forms.gle/bLvmgWR7hiMqmc1D9","014":"https://forms.gle/ofuhSSs2G235Z935A","015":"https://forms.gle/MYX4n18C9tvbbEur9","016":"https://forms.gle/yRUdDfJZiEf3f7nF7","017":"https://forms.gle/wGvhFahd23x5kmzf7","018":"https://forms.gle/T1KmSxvznjtKWQcu7","019":"https://forms.gle/rrpxk2FzKq8zLnkr7","020":"https://forms.gle/eG4CUoWhKu4mkRWy7","021":"https://forms.gle/UmMp3Uy8QTY2L5XX7","022":"https://forms.gle/hxQVVUrZ2RET9TuF8","023":"https://forms.gle/SeefNtqtDG28gVDx8","024":"https://forms.gle/xMaLw2mKG4jkc98J9","025":"https://forms.gle/DtaGmLPBoe7LwVc27","026":"https://forms.gle/XYnP4aNSACZxWwzFA","027":"https://forms.gle/ri4yWGb6Mrk1ehbq7","028":"https://forms.gle/YW9cnVVVkX4H637L9","029":"https://forms.gle/oftK98EB4zzfbSmy9","030":"https://forms.gle/Kxo7NDpH55PTEusz6","031":"https://forms.gle/1ttPhvPhapEgDq7C7","032":"https://forms.gle/ztGmEGNr3yKBmpWz5","033":"https://forms.gle/J2WF9wv185zmFdAv8","034":"https://forms.gle/REpkRLMmNZq2Mxko9","035":"https://forms.gle/3bUrdPsAYpg96ztQ9","036":"https://forms.gle/TRq32VfJyzcSMkmR9","037":"https://forms.gle/8w3Fd4fTwapoLCvG9","038":"https://forms.gle/KsmrSobg4qup3bodA","039":"https://forms.gle/zvggqbZxH6FAjk1q8","040":"https://forms.gle/SMCpkSrAXuXuPdm26","041":"https://forms.gle/eBasxdRXdMRLpiAh6","042":"https://forms.gle/1JyuJcXuS7U89FKDA","043":"https://forms.gle/jFs4ykP9DKdnmVxbA","044":"https://forms.gle/173GLbHeaN7o7TW76","045":"https://forms.gle/QqVsaGKEz8SzJFMT8","046":"https://forms.gle/KqKbZTbUBMU21WNU7","047":"https://forms.gle/uuna4XswpNcgYtAz9","048":"https://forms.gle/qYqzrFptoxCAt6iUA","049":"https://forms.gle/HHJeJCGLMbjdpfxz9","050":"https://forms.gle/pH63uUHnrhxtMFML8","051":"https://forms.gle/bHF9pKReDDDFqkRN8","052":"https://forms.gle/uTrSMsPy5e3sXafC7","053":"https://forms.gle/To4nGAM333LeV8RRA","054":"https://forms.gle/cW1J2DggLCs9AiM28","055":"https://forms.gle/1Sktz9E8R8dyeUps8","056":"https://forms.gle/KBiRjgpAz3FZ2oc47","057":"https://forms.gle/97ocf96M9uLM4RaS7","058":"https://forms.gle/eDKEEGyfVrsN9WtC6","059":"https://forms.gle/vecMjBTt6P72q8Cy9","060":"https://forms.gle/yo6HkQxDetvqsUy7A","061":"https://forms.gle/mMvAUxpJECUPTw5E8","062":"https://forms.gle/SaRkGV7wUvZ1vxDc7","063":"https://forms.gle/dUdt3giSExS9MQhN8","064":"https://forms.gle/SXeTC1JjyfBjZZt89","065":"https://forms.gle/YVAYtM3dX4p8pfdN8","066":"https://forms.gle/TZqPALKSU3J48bZw9","067":"https://forms.gle/UJFEBKTMgauphvcU6","068":"https://forms.gle/etDarUAsWPHPDcL2A","069":"https://forms.gle/2PP6KKs3ndQ13Y9E9","070":"https://forms.gle/aT4y2htrG5Rc8be88","071":"https://forms.gle/rRQR3YrUbi6uiu6h8","072":"https://forms.gle/MeYFHgrQeWZW3Reo9","073":"https://forms.gle/KwW4unpnuLy7Hqkj9","074":"https://forms.gle/mNd7Y316xrAcgGMR7","075":"https://forms.gle/ZJFG6HyrKZUeJUhL8","076":"https://forms.gle/f1NQWZR3LVZAfXqN6","077":"https://forms.gle/eenTCNMzniQo4Q377","078":"https://forms.gle/FZcDmy3nwUgxocs69","079":"https://forms.gle/HwtT1eKqZq9G7Qtu7","080":"https://forms.gle/EEXxMTw1hfhsYBTKA","081":"https://forms.gle/FEgcXJNwtcnR2qQh6","082":"https://forms.gle/Jq8aLx1oMeWcPB9G9","083":"https://forms.gle/QF6ddAhssjAEKwPs8","084":"https://forms.gle/MUK7WPvXZeY6Esbi8","085":"https://forms.gle/P6mf52Teq9utcgFx5","086":"https://forms.gle/h66DcsE6K5hgvyni8","087":"https://forms.gle/8yViu7QRuVTEXDx67","088":"https://forms.gle/7DJhmQdeirarx8Bv7","089":"https://forms.gle/mgtvKVk3ouZYk1Ui7","090":"https://forms.gle/wahaNMvHxQMQXaC59","091":"https://forms.gle/DCwD1qCz1HAX9mRH7","092":"https://forms.gle/WQcvKjm3mKhVHMAQ6","093":"https://forms.gle/JuV11DTcEiTyuSTb7","094":"https://forms.gle/4YA5hq8szdDys7sf9","095":"https://forms.gle/P8rL7sGKKPCxhYLw8","096":"https://forms.gle/BeQXtDQYs16LToqu5","097":"https://forms.gle/i9mhdvBZg2w2PFYj7","098":"https://forms.gle/RtnRXF6pEkF4Yg9f9","099":"https://forms.gle/mr8Fp32hqfexkCpc6","100":"https://forms.gle/emRQsB3Urm63jzSE7"},"hidráulico":{"001":null,"002":"https://forms.gle/ZYiP2tt3ftY9oWsQA","003":"https://forms.gle/YhyfKyMo1LrCciW97","004":"https://forms.gle/aAWDnXvDtXT7TBH78","005":"https://forms.gle/9hqwUBSdfyCiso8j8","006":"https://forms.gle/KRPmEmiXfwLk8v19A","007":"https://forms.gle/ssV1KRgtsXvGfE5fA","008":"https://forms.gle/b8s8N2LMB39iQuz38","009":"https://forms.gle/sKvQ3nrXyQvgtLhd6","010":"https://forms.gle/kNSV1baWTiJvHhLL6","011":"https://forms.gle/g9NH7kzXBWaSn29n6","012":"https://forms.gle/MXFQBR5Z7dpVE7dP9","013":"https://forms.gle/1xXY8vPrPZGTLvsXA","014":"https://forms.gle/3Qhu9WJ7sGN1onLr6","015":"https://forms.gle/b546EzDM8te3NwqM8","016":"https://forms.gle/BRCzbG6hEZGjofgP8","017":"https://forms.gle/aWDUqhM3zpTvAg2X8","018":"https://forms.gle/Z5XtD6H78YQrB3Tr8","019":"https://forms.gle/psc6FhRvCKqbrB9n6","020":"https://forms.gle/n2j6sKatczW74VJr9","021":"https://forms.gle/5NTaabKjBVSAjY8U6","022":"https://forms.gle/m5itxZAn3PGh8Bxe7","023":"https://forms.gle/Z1BsfjWQ7YFGH7Lt9","024":"https://forms.gle/LFq7h8GStbxQZ7GC6","025":"https://forms.gle/o6vu2gntJexaJL9E7","026":"https://forms.gle/SxbctnX8pWrEe9r18","027":"https://forms.gle/Kthvmx3kWTxFKrzQ8","028":"https://forms.gle/ArhKskm52LXRyLsa7","029":"https://forms.gle/eq21UG9TTayNo8jf6","030":"https://forms.gle/1NAn5U6V63XucrJ89","031":"https://forms.gle/ehKp6uWE4KFBZ2CF8","032":"https://forms.gle/aiqze7UTkFcsP7bk8","033":"https://forms.gle/bRFAJZhNLVHj7rxU7","034":"https://forms.gle/krDg6tL2ievUUZ2e6","035":"https://forms.gle/uZpZrLf1tAKdr1By8","036":"https://forms.gle/QqpfJasAjqn9Fp967","037":"https://forms.gle/sNdEhduzxPqTwDvn8","038":"https://forms.gle/x7SSAx9YCbkd8aFW6","039":"https://forms.gle/dAiZPFEN4A2bLc716","040":"https://forms.gle/rxXFLCJnqH78Eoxy8","041":"https://forms.gle/ykcKDetAXH9jwEb18","042":"https://forms.gle/QQhDwFzsMeWTfmWf8","043":"https://forms.gle/4oMX9aAaCdqLQ3R48","044":"https://forms.gle/bYSa5sgYdyc52kdo9","045":"https://forms.gle/FEm77ygzn5y3s1Ki8","046":"https://forms.gle/vCtNdB9Qg7GKt8Ae6","047":"https://forms.gle/BtqgE9bmtvjYS6tz9","048":"https://forms.gle/x2LcEcs6LPHRmo1a9","049":"https://forms.gle/K8S18g8t6gL2dT6b7","050":"https://forms.gle/3gBdeieP5WFRLiyb7"},"vapor":{"001":null,"002":"https://forms.gle/zuNtCNxo645D7sUT6","003":"https://forms.gle/6B5yeq67YPXagtZV7","004":"https://forms.gle/zznTpnmmKJBCNYxW8","005":"https://forms.gle/Gzz6U2UawBcAfbAY9","006":"https://forms.gle/6YJqAzVCYzibyZUN7","007":"https://forms.gle/yMiBNLa3f8mGuDYq8","008":"https://forms.gle/buTNCa8rXedoJnsr8","009":"https://forms.gle/1XtR8MjGxw3pNQuC8","010":"https://forms.gle/JDPxxhHAtaZ8tAXn8","011":"https://forms.gle/rPhrsJyBk6Cp5Zo97","012":"https://forms.gle/Ty8evFJF7ztexqyx9","013":"https://forms.gle/9uQxyWZFWcmKTU3j8","014":"https://forms.gle/HXj6bQqdNPzWVGZg8","015":"https://forms.gle/bQAPxivySWuLNMSv7","016":"https://forms.gle/kkbL5HTSveGAyHkX6","017":"https://forms.gle/mZjot9DpJ996eNpb6","018":"https://forms.gle/q4rPiP4vZ2RroLG18","019":"https://forms.gle/VT89HGpo4R6xyVot6","020":"https://forms.gle/GNEmSNeKAcG5cCEw7","021":"https://forms.gle/kAQC4NFkZRc8BLmEA","022":"https://forms.gle/TyqrCH1mYXYe4MQQ8","023":"https://forms.gle/1KR9MZy9rW7o8EoQ9","024":"https://forms.gle/Zttx1R31FKbEoart5","025":"https://forms.gle/h2Yd811JpD2NoT2j6","026":"https://forms.gle/qHaERLXBo5piNE8k7","027":"https://forms.gle/xKcpYEbNtn9cVbvu7","028":"https://forms.gle/ufTeje2nBsZfBVd8A","029":"https://forms.gle/rQnnGKApT5VWiAvr9","030":"https://forms.gle/xUL7NQE92KUqKoXF9","031":"https://forms.gle/xpYhNsdF8Hh9vqAB6","032":"https://forms.gle/5sgFJAXniAapdU1h6","033":"https://forms.gle/JgycRs4MJTcGYfxL6","034":"https://forms.gle/xMwzLpF6JPwoFMk56","035":"https://forms.gle/VPigMqBV22fwjDVz8","036":"https://forms.gle/Zm3xEED2hRFeVSfQ7","037":"https://forms.gle/xhWbrs3znz2hAQzg6","038":"https://forms.gle/CZa9n6NYtfZBHvrN6","039":"https://forms.gle/8qsXvS3vLLrktMmM7","040":"https://forms.gle/M61BVCjoDWtCbW2Y7","041":"https://forms.gle/JdSYNpyEMCUqDVBt9","042":"https://forms.gle/Axx9v4WHgwGUQCGc9","043":"https://forms.gle/SbciWG3tSsaYT6D86","044":"https://forms.gle/uPqrdSntp4WFfruf6","045":"https://forms.gle/vcBxkeoujxgVHaQs9","046":"https://forms.gle/bMtcAxgeqSGuvvGy7","047":"https://forms.gle/3eWXPwJaxTBzujeQ6","048":"https://forms.gle/7p1eemJHUK8VVYV38","049":"https://forms.gle/ioWjaQfBmE1AExR27","050":"https://forms.gle/Qr4PFwQ7Yb75W8PN9"}}};
+
+const MOD_META = {
+  'infusión':   {icon:'☕', label:'Infusión'},
+  'molinos':    {icon:'⚙️', label:'Molinos'},
+  'leche':      {icon:'🥛', label:'Leche'},
+  'hidráulico': {icon:'💧', label:'Hidráulico'},
+  'vapor':      {icon:'♨️', label:'Vapor'},
+};
+const MOD_ORDER = ['infusión','molinos','leche','hidráulico','vapor'];
+
+// ── API helpers ──────────────────────────────────────────
+async function api(method, path, body){
+  const opts = {method, headers:{'Content-Type':'application/json'}};
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api'+path, opts);
+  return r.json();
+}
+const getCompanies  = ()           => api('GET',  '/companies');
+const addCompany    = name         => api('POST', '/companies',                {name});
+const delCompany    = name         => api('DELETE',`/companies/${enc(name)}`);
+const assignModule  = (n,mod,data) => api('PUT',  `/companies/${enc(n)}/module`, {module:mod,...data});
+const removeModule  = (n,mod)      => api('DELETE',`/companies/${enc(n)}/module/${enc(mod)}`);
+const enc = s => encodeURIComponent(s);
+
+// ── Search state ─────────────────────────────────────────
+let S = {machine:null, module:null, id:null};
+
+// ── Tabs ─────────────────────────────────────────────────
+function showTab(t){
+  document.getElementById('tabSearch').style.display     = t==='search'    ? '' : 'none';
+  document.getElementById('tabCompanies').style.display  = t==='companies' ? '' : 'none';
+  document.getElementById('tabBtnSearch').classList.toggle('active', t==='search');
+  document.getElementById('tabBtnCo').classList.toggle('active',     t==='companies');
+  if(t==='companies') renderCompanies();
+}
+
+// ── Search ───────────────────────────────────────────────
+function selectMachine(m, el){
+  S={machine:m, module:null, id:null};
+  document.querySelectorAll('.machine-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  markDone(1, m.charAt(0).toUpperCase()+m.slice(1));
+  buildModuleGrid(); openStep(2); hideResult();
+}
+
+function buildModuleGrid(){
+  const g=document.getElementById('moduleGrid');
+  const list=MOD_ORDER.filter(m=>DB[S.machine][m]);
+  g.innerHTML=list.map(m=>`<div class="module-btn" onclick="selectModule('${m}',this)">
+    <span class="module-icon">${MOD_META[m].icon}</span>
+    <div class="module-name">${MOD_META[m].label}</div>
+  </div>`).join('');
+}
+
+function selectModule(mod, el){
+  S.module=mod; S.id=null;
+  document.querySelectorAll('.module-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  markDone(2, MOD_META[mod].label);
+  buildIdGrid(); openStep(3); hideResult();
+}
+
+function buildIdGrid(){
+  const g=document.getElementById('idGrid');
+  const ids=Object.keys(DB[S.machine][S.module]).sort();
+  g.innerHTML=ids.map(id=>{
+    const ok=DB[S.machine][S.module][id];
+    return `<div class="id-chip${ok?'':' no-url'}" onclick="${ok?`pickChip('${id}',this)`:''}">${id}</div>`;
+  }).join('');
+  document.getElementById('idInput').value='';
+}
+
+function pickChip(id,el){
+  S.id=id;
+  document.querySelectorAll('.id-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('idInput').value=parseInt(id,10);
+  markDone(3,id); showResult(id);
+}
+
+function handleIdInput(){
+  document.querySelectorAll('.id-chip').forEach(c=>c.classList.remove('selected'));
+}
+
+function doSearch(){
+  if(!S.machine||!S.module) return;
+  const raw=document.getElementById('idInput').value.trim();
+  if(!raw) return;
+  const id=String(parseInt(raw,10)).padStart(3,'0');
+  S.id=id;
+  document.querySelectorAll('.id-chip').forEach(c=>{
+    c.classList.toggle('selected',c.textContent.trim()===id);
+  });
+  markDone(3,id); showResult(id);
+}
+
+async function showResult(id){
+  const url=DB[S.machine]?.[S.module]?.[id];
+  const panel=document.getElementById('resultPanel');
+  const mName=S.machine.charAt(0).toUpperCase()+S.machine.slice(1);
+  const modLabel=MOD_META[S.module]?.label||S.module;
+  const modIcon =MOD_META[S.module]?.icon||'🔩';
+
+  if(url){
+    // Load companies for the assign dropdown
+    const companies = await getCompanies();
+    const names = Object.keys(companies).sort();
+    const opts = names.length
+      ? names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('')
+      : '';
+    const selectHtml = names.length
+      ? `<select class="assign-select" id="assignSel">
+           <option value="">— Seleccionar empresa —</option>${opts}
+         </select>
+         <button class="assign-btn" onclick="doAssign()">Asignar</button>`
+      : `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted2);font-style:italic;">
+           No hay empresas creadas. Ve a la pestaña Empresas.
+         </span>`;
+
+    panel.innerHTML=`<div class="result-card">
+      <div class="result-header">
+        <div class="result-badge">
+          <span class="badge badge-machine">${mName}</span>
+          <span class="badge badge-module">${modIcon} ${modLabel}</span>
+          <span class="badge badge-id">ID ${id}</span>
+        </div>
+        <span class="result-reset" onclick="resetAll()">↩ Nueva búsqueda</span>
+      </div>
+      <div class="result-title">Enlace del formulario NFC</div>
+      <div class="result-url-box">
+        <div class="result-url-text">${url}</div>
+        <button class="copy-btn" id="copyBtn" onclick="copyUrl('${url}')">Copiar</button>
+      </div>
+      <div class="result-actions">
+        <a class="btn-open" href="${url}" target="_blank" rel="noopener">↗ Abrir formulario</a>
+        <button class="btn-new" onclick="resetAll()">Nueva búsqueda</button>
+      </div>
+      <hr class="assign-divider">
+      <div class="assign-box">
+        <span class="assign-label">Asignar a empresa:</span>
+        ${selectHtml}
+      </div>
+      <div id="assignFb"></div>
+    </div>`;
+  } else {
+    panel.innerHTML=`<div class="result-card">
+      <div class="result-header">
+        <div class="result-badge">
+          <span class="badge badge-machine">${mName}</span>
+          <span class="badge badge-module">${modIcon} ${modLabel}</span>
+          <span class="badge badge-id">ID ${id}</span>
+        </div>
+        <span class="result-reset" onclick="resetAll()">↩ Nueva búsqueda</span>
+      </div>
+      <div class="result-none">
+        <div class="result-none-icon">⚠️</div>
+        <div class="result-none-title">Sin URL asignada</div>
+        <div class="result-none-sub">El módulo ID ${id} de ${mName} / ${modLabel} no tiene formulario vinculado.</div>
+      </div>
+    </div>`;
+  }
+
+  panel.style.display='block';
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+async function doAssign(){
+  const sel=document.getElementById('assignSel');
+  if(!sel||!sel.value){showFb('err','Selecciona una empresa primero.');return;}
+  const company=sel.value;
+  const url=DB[S.machine][S.module][S.id];
+  const res=await assignModule(company, S.module, {machine:S.machine, id:S.id, url});
+  if(res.ok){
+    const label=MOD_META[S.module]?.label||S.module;
+    showFb(res.replaced?'warn':'ok',
+      res.replaced
+        ? `✓ Módulo ${label} reemplazado en "${company}".`
+        : `✓ Módulo ${label} asignado a "${company}".`
+    );
+  } else {
+    showFb('err', res.error||'Error al asignar.');
+  }
+}
+
+function showFb(type,msg){
+  const el=document.getElementById('assignFb');
+  if(el){el.innerHTML=`<div class="assign-feedback ${type}">${msg}</div>`;}
+  setTimeout(()=>{if(el)el.innerHTML='';},4000);
+}
+
+function copyUrl(url){
+  navigator.clipboard.writeText(url).then(()=>{
+    const b=document.getElementById('copyBtn');
+    if(b){b.textContent='✓ Copiado';b.classList.add('copied');}
+    setTimeout(()=>{if(b){b.textContent='Copiar';b.classList.remove('copied');}},2000);
+  });
+}
+
+function hideResult(){document.getElementById('resultPanel').style.display='none';}
+
+// ── Step helpers ─────────────────────────────────────────
+function openStep(n){
+  for(let i=1;i<=3;i++){
+    const s=document.getElementById('step'+i);
+    const b=document.getElementById('sb'+i);
+    if(i===n){s.classList.add('active');b.style.display='block';}
+    else{b.style.display='none'; if(i>n) s.classList.remove('active','done');}
+  }
+}
+function toggleStep(n){
+  const s=document.getElementById('step'+n);
+  const b=document.getElementById('sb'+n);
+  if(!s.classList.contains('active')&&!s.classList.contains('done'))return;
+  b.style.display=b.style.display!=='none'?'none':'block';
+}
+function markDone(n,v){
+  const s=document.getElementById('step'+n);
+  const num=document.getElementById('sn'+n);
+  const val=document.getElementById('sv'+n);
+  s.classList.remove('active'); s.classList.add('done');
+  num.innerHTML='✓'; val.textContent=v; val.style.display='inline-block';
+}
+function resetAll(){
+  S={machine:null,module:null,id:null};
+  for(let i=1;i<=3;i++){
+    const s=document.getElementById('step'+i);
+    s.classList.remove('done','active');
+    document.getElementById('sn'+i).innerHTML=i;
+    const v=document.getElementById('sv'+i); v.textContent=''; v.style.display='none';
+    document.getElementById('sb'+i).style.display=i===1?'block':'none';
+  }
+  document.getElementById('step1').classList.add('active');
+  document.querySelectorAll('.machine-card').forEach(c=>c.classList.remove('selected'));
+  hideResult(); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Companies ────────────────────────────────────────────
+function toggleAddRow(){
+  const row=document.getElementById('coAddRow');
+  row.classList.toggle('open');
+  if(row.classList.contains('open')){
+    const inp=document.getElementById('coNewName');
+    inp.value=''; inp.style.borderColor=''; setTimeout(()=>inp.focus(),50);
+  }
+}
+
+async function confirmAdd(){
+  const inp=document.getElementById('coNewName');
+  const name=inp.value.trim();
+  if(!name){inp.focus();return;}
+  const res=await addCompany(name);
+  if(res.ok){
+    toggleAddRow(); renderCompanies();
+  } else if(res.error==='La empresa ya existe'){
+    inp.style.borderColor='var(--warn)';
+    setTimeout(()=>inp.style.borderColor='',1500);
+  } else {
+    alert(res.error||'Error');
+  }
+}
+
+async function deleteCompany(name){
+  if(!confirm(`¿Eliminar la empresa "${name}" y todos sus módulos asignados?`))return;
+  const res=await delCompany(name);
+  if(res.ok) renderCompanies();
+}
+
+async function removeModFromCompany(name,mod){
+  const res=await removeModule(name,mod);
+  if(res.ok){
+    // Re-render but keep card expanded
+    await renderCompanies(name);
+  }
+}
+
+async function renderCompanies(keepOpen=''){
+  const companies=await getCompanies();
+  const filter=(document.getElementById('coSearch')?.value||'').toLowerCase();
+  const list=document.getElementById('coList');
+  const names=Object.keys(companies).filter(n=>n.toLowerCase().includes(filter)).sort();
+
+  if(Object.keys(companies).length===0){
+    list.innerHTML=`<div class="co-empty"><span class="co-empty-icon">🏢</span>Aún no hay empresas.<br>Pulsa "+ Nueva empresa" para añadir la primera.</div>`;
+    return;
+  }
+  if(names.length===0){
+    list.innerHTML=`<div class="co-empty"><span class="co-empty-icon">🔍</span>No se encontraron empresas.</div>`;
+    return;
+  }
+
+  const cards=names.map(name=>{
+    const mods=companies[name]||{};
+    const isOpen=name===keepOpen;
+    const pills=MOD_ORDER.map(m=>{
+      const has=mods[m];
+      return `<span class="co-pill ${has?'yes':'no'}" title="${MOD_META[m].label}">${MOD_META[m].icon}</span>`;
+    }).join('');
+    const detail=MOD_ORDER.map(m=>{
+      const has=mods[m];
+      const icon=MOD_META[m].icon; const label=MOD_META[m].label;
+      if(has){
+        const mc=has.machine.charAt(0).toUpperCase()+has.machine.slice(1);
+        return `<div class="co-mod-row has">
+          <span class="co-mod-icon">${icon}</span>
+          <span class="co-mod-name">${label}</span>
+          <div class="co-mod-body">
+            <div class="co-mod-tags">
+              <span class="co-mod-machine">${mc}</span>
+              <span class="co-mod-id">ID ${has.id}</span>
+            </div>
+            <a class="co-mod-url" href="${has.url}" target="_blank" rel="noopener">${has.url}</a>
+          </div>
+          <div class="co-mod-actions">
+            <a class="co-mod-open" href="${has.url}" target="_blank" rel="noopener">↗</a>
+            <button class="co-mod-rm" onclick="removeModFromCompany(${JSON.stringify(name)},${JSON.stringify(m)})">✕</button>
+          </div>
+        </div>`;
+      }
+      return `<div class="co-mod-row">
+        <span class="co-mod-icon" style="opacity:.3">${icon}</span>
+        <span class="co-mod-name">${label}</span>
+        <div class="co-mod-body"><span class="co-mod-empty">Sin asignar</span></div>
+      </div>`;
+    }).join('');
+
+    const sa=name.replace(/"/g,'&quot;');
+    return `<div class="co-card${isOpen?' expanded':''}" data-co="${sa}">
+      <div class="co-card-header" onclick="this.closest('.co-card').classList.toggle('expanded')">
+        <div class="co-icon">🏢</div>
+        <div class="co-name">${name}</div>
+        <div class="co-pills">${pills}</div>
+        <span class="co-chevron">▼</span>
+        <button class="co-del-btn" onclick="event.stopPropagation();deleteCompany(${JSON.stringify(name)})">✕ Eliminar</button>
+      </div>
+      <div class="co-detail"><div>${detail}</div></div>
+    </div>`;
+  }).join('');
+
+  list.innerHTML=`<div class="co-list">${cards}</div>`;
+}
+</script>
+</body>
+</html>
